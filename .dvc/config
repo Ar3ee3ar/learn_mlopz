@@ -1,0 +1,4 @@
+[core]
+    remote = awsdata
+['remote "awsdata"']
+    url = s3://mlopsz-bucket/data
