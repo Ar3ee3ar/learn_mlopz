@@ -1,3 +1,5 @@
+# steps/ingestion.py
+# 1. handle initial data ingestion ensuring data is correctly loaded 
 import pandas as pd
 import yaml
 

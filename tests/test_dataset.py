@@ -20,8 +20,9 @@ def sample_data():
     test_data = pd.DataFrame({'col1': [5, 6], 'col2': [7, 8]})
     return train_data, test_data
 
+# stacking patch decorator to use multiple 
 @patch("builtins.open", new_callable=mock_open, read_data="dummy")
-@patch("yaml.safe_load")
+@patch("yaml.safe_load") # temporarily replace the target object with mock objects without target objects present during testing (unit-test)
 @patch("pandas.read_csv")
 def test_load_data(mock_read_csv, mock_safe_load, mock_open, config_data, sample_data):
     # Mock the YAML safe_load to return the sample config data

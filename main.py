@@ -7,9 +7,12 @@ from steps.clean import Cleaner
 from steps.train import Trainer
 from steps.predict import Predictor
 from sklearn.metrics import classification_report
+import dagshub
 
 # Set up logging
 logging.basicConfig(level=logging.INFO,format='%(asctime)s:%(levelname)s:%(message)s')
+# setup dagshub tracking
+dagshub.init(repo_owner='Ar3ee3ar', repo_name='mlopz-aws', mlflow=True)
 
 def main():
     # Load data
@@ -49,7 +52,10 @@ def train_with_mlflow():
     with open('config.yml', 'r') as file:
         config = yaml.safe_load(file)
 
-    mlflow.set_experiment("Model Training Experiment")
+    # set tracking url
+    # mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+
+    # mlflow.set_experiment("Model Training Experiment")
     
     with mlflow.start_run() as run:
         # Load data

@@ -1,7 +1,15 @@
+# use model registry
 from fastapi import FastAPI
 from pydantic import BaseModel
 import pandas as pd
 import joblib
+import mlflow
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+logged_model = f'runs:/{os.getenv("REGISTRY_ID")}/model'
 
 app = FastAPI()
 
@@ -14,7 +22,8 @@ class InputData(BaseModel):
     PastAccident: str
     AnnualPremium: float
 
-model = joblib.load('models/model.pkl')
+# model = joblib.load('models/model.pkl')
+model = mlflow.pyfunc.load_model(logged_model)
 
 @app.get("/")
 async def read_root():

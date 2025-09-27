@@ -1,0 +1,57 @@
+# images
+:build
+docker build -t <image-name> .
+:build(without cache)
+docker build -t <image-name> . -no-cache
+:list local images
+docker images
+:remove all unused images
+docker image prune
+
+# docker hub
+:login into Docker
+docker login -u <username>
+:publish image to Docker hub
+docker push <username>/<image-name>
+:search hub for an image
+docker search <image_name>
+:pull an image from a docker hub
+docker pull <image_name>
+
+# general command
+:start docker daemon
+docker -d
+:get help
+docker --help
+:display system info
+docker info
+
+# container
+:create&run from image with custom name
+docker run --name <container-name> <image_name>
+:run container & publish a container's ports to the host
+docker run -p <host_port>:<container_port> <image_name>
+:run container in the bg
+docker run -d <image_name>
+:start/stop container
+docker start/stop <container_name> (or <container-id>)
+:remove a stopped container
+docker rm <container_name>
+:open shell inside a running container
+docker exec -it <container_name> sh
+:fetch & follow log
+docker logs -f <container_name> 
+:inspect running container
+docker inspect <container_name>
+:list currently running container
+docker ps
+:list all (include stopped container)
+docker ps --all
+:view resource usage stats
+docker container stats 
+
+# compose
+:build compose
+docker compose build
+:start up compose
+docker compose up

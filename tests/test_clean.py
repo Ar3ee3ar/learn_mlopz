@@ -59,4 +59,8 @@ def test_clean_data(cleaner, sample_data):
     Q3 = cleaned_data['AnnualPremium'].quantile(0.75)
     IQR = Q3 - Q1
     upper_bound = Q3 + 1.5 * IQR
+
+    # check if Result have missing value
+    # assert not cleaned_data['Result'].isnull().any()
+
     assert (cleaned_data['AnnualPremium'] <= upper_bound).all()
