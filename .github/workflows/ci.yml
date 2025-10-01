@@ -35,12 +35,14 @@ jobs:
       - name: Setup env files
         shell: bash
         run: |
-          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" > .env
+          touch .env
+          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
           echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" >> .env
           echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" >> .env
           echo "REGISTRY_ID=${{ secrets.REGISTRY_ID }}" >> .env
           echo "MONITOR_API_TOKEN=${{ secrets.MONITOR_API_TOKEN }}" >> .env
           echo "MONITOR_PROJECT_ID=${{ secrets.MONITOR_PROJECT_ID }}" >> .env
+          cat .env
 
       - name: Setup SSH Key
         shell: bash
@@ -62,12 +64,6 @@ jobs:
           # Copy all project files to the EC2 instance
           # scp /path/to/local/file.txt username@remote_host:/path/to/remote/directory/
           scp -o StrictHostKeyChecking=no -i ~/ec2_key.pem -r ./* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/mlopz-aws/
-
-      - name: Copy .env file to the EC2 instance
-        shell: bash
-        run: |
-          # Copy .env file to the EC2 instance
-          scp -o StrictHostKeyChecking=no -i ~/ec2_key.pem -r ./.env ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/mlopz-aws/
 
       - name: Deploy Code
         shell: bash
