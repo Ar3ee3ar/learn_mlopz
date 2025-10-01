@@ -1,0 +1,67 @@
+name: ci pipeline
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name:  Checkout Code
+        uses:  actions/checkout
+
+      - name:  Set up python
+        uses:  actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Tests
+        run: |
+          pytest tests/
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout
+
+      - name: Setup env files
+        shell: bash
+        run: |
+          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
+          echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
+          echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
+          echo "REGISTRY_ID=${{ secrets.REGISTRY_ID }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
+          echo "MONITOR_API_TOKEN=${{ secrets.MONITOR_API_TOKEN }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
+          echo "MONITOR_PROJECT_ID=${{ secrets.MONITOR_PROJECT_ID }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
+          chmod 400 ~/.env
+
+      - name: Setup SSH Key
+        shell: bash
+        run: |
+          echo "${{ secrets.EC2_KEY }}" > ~/ec2_key.pem
+          chmod 400 ~/ec2_key.pem
+
+      - name: Deploy Code
+        shell: bash
+        run: |
+          # Copy all project files to the EC2 instance
+          # scp /path/to/local/file.txt username@remote_host:/path/to/remote/directory/
+          scp -o StrictHostKeyChecking=no -i ~/ec2_key.pem -r ./* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/mlopz-aws/
+
+          # Copy .env file to the EC2 instance
+          scp -o StrictHostKeyChecking=no -i ~/ec2_key.pem -r ~/.env ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/mlopz-aws/
+
+          # SSH into the EC2 instance and deploy
+          ssh -o StrictHostKeyChecking=no -i ~/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            cd /home/${{ secrets.EC2_USER }}/mlopz-aws/ &&
+            docker-compose up --build -d
+          "
+      

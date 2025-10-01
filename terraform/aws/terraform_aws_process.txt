@@ -1,0 +1,28 @@
+1. Configure terraform
+2. Configure provider which AWS account & region to use
+3. Create vpc (our pvc instead of aws_default_vpc)
+   - Virtual Private Cloud (VPC): Service ตัวนึงที่ดูเเลเรื่อง Network ดูเเลในเรื่องของ Layer 3 เป็นหลัก
+        กำหนด IPv4 cidr block ได้ตั้งแต่ /16 ถึง /28 (Tips: ตั้ง /23 จะได้เอามาแยกได้ /24 2 block)
+4. create a public subnet (need IGW for outbound)
+5. create Internet Gateway (IGW): needed outbound access (internet) - router เชื่อม EC2 ออกภายนอก
+6. create Routing table & attach to subnet: บอกเส้นทางเพื่อไปยัง IGW
+7. create Security group: Allow HTTP(80) and SSH (22)
+8. Generate SSH "key pair" and saves .pem locally
+9. Create EC2 instance
+   9.1 create ami using datasource:
+       - Amazon Machine Image (AMI): ฟังก์ชั่นบันทึกการตั้งค่าต่างๆ ของ EC2 instance ในรูปแบบ image 
+            ใช้เก็บการตั้งค่าของ instance (จำเป็นต้องมี instance ก่อน) 
+            โดย AMI จะเปลี่ยนรูปแบบ instance ให้กลายเป็น Image ที่มี snapshot อยู่ด้วย (snapshot คือ template เก็บข้อมูลของ instance !ต่างจาก AMI โดยจะเก็บแค่ส่วน ECS - storage!)
+   9.2 launch EC2 instance
+       - Amazon Elastic Computer Cloud (EC2): IaaS สามารถสร้างและเรียกใช้งาน VM สามารถใช้ร่วมกับ Elastic Block Store (EBS) และ Elastic Load Balancing (ELB)
+(optional) connect to EC2 to send file/ run command/ etc.
+
+
+
+terraform command
+1. terraform init
+2. terraform plan
+3. terraform apply (use for auto 'yes')-auto-approve
+
+Debugging
+cat /var/log/cloud-init-output.log
