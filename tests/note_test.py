@@ -28,7 +28,7 @@ class TestWeather(unittest.TestCase):
         # Ensure that requests.get was called with the correct URL
         mock_get.assert_called_with("http://weatherapi.com/London")
 
-    def test_patch_context_manager():
+    def test_patch_context_manager(self):
         # use context manager (more control over the scope of patch)
         with patch('requests.get') as mock_get:
             mock_get.return_value.json.return_value = {

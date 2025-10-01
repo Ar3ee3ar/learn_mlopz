@@ -35,12 +35,12 @@ jobs:
       - name: Setup env files
         shell: bash
         run: |
-          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
-          echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
-          echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
-          echo "REGISTRY_ID=${{ secrets.REGISTRY_ID }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
-          echo "MONITOR_API_TOKEN=${{ secrets.MONITOR_API_TOKEN }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
-          echo "MONITOR_PROJECT_ID=${{ secrets.MONITOR_PROJECT_ID }}" > /home/${{ secrets.EC2_USER }}/mlopz-aws/.env
+          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" > ~/.env
+          echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" > ~/.env
+          echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" > ~/.env
+          echo "REGISTRY_ID=${{ secrets.REGISTRY_ID }}" > ~/.env
+          echo "MONITOR_API_TOKEN=${{ secrets.MONITOR_API_TOKEN }}" > ~/.env
+          echo "MONITOR_PROJECT_ID=${{ secrets.MONITOR_PROJECT_ID }}" > ~/.env
           chmod 400 ~/.env
 
       - name: Setup SSH Key
