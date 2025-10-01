@@ -375,5 +375,6 @@ cython_debug/
 **/.terraform/
 **/.terraform.lock.hcl
 **/terraform.tfstate**
-**/**.pub
+**/**.pem
 .github/workflows/docs.yml
+terraform/aws/docker_password.txt
