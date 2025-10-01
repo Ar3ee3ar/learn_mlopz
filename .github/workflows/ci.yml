@@ -48,6 +48,14 @@ jobs:
           echo "${{ secrets.EC2_KEY }}" > ~/ec2_key.pem
           chmod 400 ~/ec2_key.pem
 
+      - name: Prepare folder on EC2
+        shell: bash
+        run: |
+          ssh -o StrictHostKeyChecking=no -i ~/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+            sudo mkdir -p /home/${{ secrets.EC2_USER }}/mlopz-aws &&
+            sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} /home/${{ secrets.EC2_USER }}/mlopz-aws
+          "
+
       - name: Copy all project files to the EC2 instance
         shell: bash
         run: |
