@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name:  Checkout Code
-        uses:  actions/checkout
+        uses:  actions/checkout@v3
 
       - name:  Set up python
         uses:  actions/setup-python@v3
@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout
+        uses: actions/checkout@v3
 
       - name: Setup env files
         shell: bash
