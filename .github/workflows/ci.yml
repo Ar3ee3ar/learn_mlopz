@@ -41,7 +41,6 @@ jobs:
           echo "REGISTRY_ID=${{ secrets.REGISTRY_ID }}" > ~/.env
           echo "MONITOR_API_TOKEN=${{ secrets.MONITOR_API_TOKEN }}" > ~/.env
           echo "MONITOR_PROJECT_ID=${{ secrets.MONITOR_PROJECT_ID }}" > ~/.env
-          chmod 400 ~/.env
 
       - name: Setup SSH Key
         shell: bash
