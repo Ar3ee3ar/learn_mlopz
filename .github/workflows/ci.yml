@@ -73,6 +73,7 @@ jobs:
             cd /home/${{ secrets.EC2_USER }}/learn_mlopz/ &&
             sudo git pull &&
             sudo docker stop ml-api &&
+            sudo docker rm ml-api &&
             sudo docker build -t mlopz . &&
             sudo docker run --name ml-api -dp 80:80 --env-file .env mlopz
           "
