@@ -36,12 +36,12 @@ jobs:
         shell: bash
         run: |
           touch .env
-          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" >> .env
-          echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" >> .env
-          echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" >> .env
-          echo "REGISTRY_ID=${{ secrets.REGISTRY_ID }}" >> .env
-          echo "MONITOR_API_TOKEN=${{ secrets.MONITOR_API_TOKEN }}" >> .env
-          echo "MONITOR_PROJECT_ID=${{ secrets.MONITOR_PROJECT_ID }}" >> .env
+          echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" > .env
+          echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" > .env
+          echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" > .env
+          echo "REGISTRY_ID=${{ secrets.REGISTRY_ID }}" > .env
+          echo "MONITOR_API_TOKEN=${{ secrets.MONITOR_API_TOKEN }}" > .env
+          echo "MONITOR_PROJECT_ID=${{ secrets.MONITOR_PROJECT_ID }}" > .env
           cat .env
 
       - name: Setup SSH Key
@@ -50,20 +50,20 @@ jobs:
           echo "${{ secrets.EC2_KEY }}" > ~/ec2_key.pem
           chmod 400 ~/ec2_key.pem
 
-      - name: Prepare folder on EC2
-        shell: bash
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
-            sudo mkdir -p /home/${{ secrets.EC2_USER }}/mlopz-aws &&
-            sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} /home/${{ secrets.EC2_USER }}/mlopz-aws
-          "
+      # - name: Prepare folder on EC2
+      #   shell: bash
+      #   run: |
+      #     ssh -o StrictHostKeyChecking=no -i ~/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
+      #       sudo mkdir -p /home/${{ secrets.EC2_USER }}/mlopz-aws &&
+      #       sudo chown -R ${{ secrets.EC2_USER }}:${{ secrets.EC2_USER }} /home/${{ secrets.EC2_USER }}/mlopz-aws
+      #     "
 
-      - name: Copy all project files to the EC2 instance
-        shell: bash
-        run: |
-          # Copy all project files to the EC2 instance
-          # scp /path/to/local/file.txt username@remote_host:/path/to/remote/directory/
-          scp -o StrictHostKeyChecking=no -i ~/ec2_key.pem -r ./* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/mlopz-aws/
+      # - name: Copy all project files to the EC2 instance
+      #   shell: bash
+      #   run: |
+      #     # Copy all project files to the EC2 instance
+      #     # scp /path/to/local/file.txt username@remote_host:/path/to/remote/directory/
+      #     scp -o StrictHostKeyChecking=no -i ~/ec2_key.pem -r ./* ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/mlopz-aws/
 
       - name: Deploy Code
         shell: bash
@@ -71,6 +71,9 @@ jobs:
           # SSH into the EC2 instance and deploy
           ssh -o StrictHostKeyChecking=no -i ~/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
             cd /home/${{ secrets.EC2_USER }}/mlopz-aws/ &&
-            docker compose up --build -d
+            git pull &&
+            sudo docker build -t mlopz . &&
+            sudo docker stop ml-api &&
+            sudo docker run --name ml-api -dp 80:80 --env-file .env mlopz
           "
       
