@@ -26,3 +26,6 @@ terraform command
 
 Debugging
 cat /var/log/cloud-init-output.log
+
+check instance available
+aws ec2 describe-instance-types --filters Name=processor-info.supported-architecture,Values=arm64 --query "InstanceTypes[*].InstanceType" --output text
