@@ -81,7 +81,7 @@ jobs:
           # SSH into the EC2 instance and deploy
           ssh -o StrictHostKeyChecking=no -i ~/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "
             cd /home/${{ secrets.EC2_USER }}/learn_mlopz/ &&
-            sudo docker ps --filter "publish=80" --format "{{.ID}}" | while read -r id; do   docker stop "$id";   docker rm "$id"; done &&
+            sudo docker ps --filter "publish=80" --format "{{.ID}}" | while read -r id; do   sudo docker stop "$id";   sudo docker rm "$id"; done &&
             sudo docker build -t mlopz . &&
             sudo docker run --name ml-api -dp 80:80 --env-file .env mlopz
           "
