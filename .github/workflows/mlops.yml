@@ -53,6 +53,7 @@ jobs:
                 echo "PYTHONPATH=$GITHUB_WORKSPACE/${{env.PYTHONPATH}}" >> $GITHUB_ENV
                 echo "RUN_IN_ACTION=true" >> $GITHUB_ENV
                 python -m monitoring.monitor
+                python -m monitoring.check_threshold
 
     # retrain:
     #     name: Retrain model if drift detected
