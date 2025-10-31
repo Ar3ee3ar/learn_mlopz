@@ -13,11 +13,18 @@ env:
     EC2_HOST: ${{secrets.EC2_HOST}}
     EC2_KEY: ${{secrets.EC2_KEY}}
     MLFLOW_TRACKING_URI: ${{secrets.MLFLOW_TRACKING_URI}}
+    MLFLOW_TRACKING_USERNAME: ${{secrets.MLFLOW_TRACKING_USERNAME}}
     MLFLOW_TRACKING_PASSWORD: ${{secrets.MLFLOW_TRACKING_PASSWORD}}
+    MLFLOW_MODEL_NAME: ${{secrets.MLFLOW_MODEL_NAME}}
     PYTHONPATH: src
     AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
     AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
     BUCKET_NAME: ${{secrets.BUCKET_NAME}}
+    REPO_URI: ${{secrets.REPO_URI}}
+    REGISTRY_ID: ${{secrets.REGISTRY_ID}}
+    MONITOR_API_TOKEN: ${{secrets.MONITOR_API_TOKEN}}
+    MONITOR_PROJECT_ID: ${{secrets.MONITOR_PROJECT_ID}}
+    RUN_IN_ACTION: true
 
 
 jobs:
@@ -36,10 +43,24 @@ jobs:
             - name: Install dependencies
               run: |
                 pip install -r src/requirements.txt
+
+            - name: Setup env files
+              shell: bash
+              run: |
+                # create empty file
+                touch .env
+                # > as overwrite | >> as append
+                echo "MLFLOW_TRACKING_URI=${{ secrets.MLFLOW_TRACKING_URI }}" > .env
+                echo "MLFLOW_TRACKING_USERNAME=${{ secrets.MLFLOW_TRACKING_USERNAME }}" >> .env
+                echo "MLFLOW_TRACKING_PASSWORD=${{ secrets.MLFLOW_TRACKING_PASSWORD }}" >> .env
+                echo "REGISTRY_ID=${{ secrets.REGISTRY_ID }}" >> .env
+                echo "MONITOR_API_TOKEN=${{ secrets.MONITOR_API_TOKEN }}" >> .env
+                echo "MONITOR_PROJECT_ID=${{ secrets.MONITOR_PROJECT_ID }}" >> .env
             
             - name: Run evidently drift check
               run: |
                 echo "PYTHONPATH=$GITHUB_WORKSPACE/${{env.PYTHONPATH}}" >> $GITHUB_ENV
+                echo "RUN_IN_ACTION=true" >> $GITHUB_ENV
                 python -m monitoring.monitor
 
     # retrain:

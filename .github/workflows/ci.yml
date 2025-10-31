@@ -6,7 +6,8 @@ on:
       - master
 
 env:
-  PYTHON_PATH: src
+  PYTHONPATH: src
+  RUN_IN_ACTION: true
 
 jobs:
   build:
@@ -27,7 +28,6 @@ jobs:
 
       - name: Run Tests
         run: |
-          echo "PYTHONPATH=$GITHUB_WORKSPACE/${{env.PYTHON_PATH}}" >> $GITHUB_ENV
           pytest tests/
   # deploy:
   #   runs-on: ubuntu-latest
