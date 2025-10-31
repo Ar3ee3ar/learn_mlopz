@@ -1,0 +1,1 @@
+Filebeat - เป็นโปรแกรมไว้ส่ง log ไปที่ Elasticsearch หรือจะส่งไปที่ Logstash เพื่อทำการประมวลผลบางอย่างกับข้อมูลใน log ก่อนส่งไปเก็บที่ Elasticsearch

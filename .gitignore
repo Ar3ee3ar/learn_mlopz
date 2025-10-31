@@ -370,6 +370,7 @@ cython_debug/
 # /data
 /data
 /models
+mlruns/
 
 .python-version
 **/.terraform/

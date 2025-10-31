@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from steps.clean import Cleaner
+from training.steps.clean import Cleaner
 
 @pytest.fixture
 def sample_data():

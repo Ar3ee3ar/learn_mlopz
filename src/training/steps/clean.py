@@ -10,8 +10,11 @@ class Cleaner:
         
         
     def clean_data(self, data):
-        # drop un-informative feature
-        data.drop(['id','SalesChannelID','VehicleAge','DaysSinceCreated'], axis=1, inplace=True)
+        try:
+            # drop un-informative feature
+            data.drop(['id','SalesChannelID','VehicleAge','DaysSinceCreated'], axis=1, inplace=True)
+        except:
+            pass
         # drop missing value in target
         data = data.dropna(subset=['Result'], inplace=False)
         # cleaning data (remove euro sign and comma in cash value and cast to float)  

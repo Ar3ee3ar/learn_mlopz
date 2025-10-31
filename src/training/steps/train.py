@@ -19,7 +19,7 @@ class Trainer:
         self.pipeline = self.create_pipeline()
 
     def load_config(self):
-        with open('config.yml', 'r') as config_file:
+        with open('configs/config.yml', 'r') as config_file:
             return yaml.safe_load(config_file)
         
     def create_pipeline(self):
@@ -30,7 +30,7 @@ class Trainer:
             ('onehot', OneHotEncoder(handle_unknown='ignore'), ['Gender', 'PastAccident']), # one hot to add value as column eg. male have male column 1 and female 0 | and female have 0 and 1
         ])
         # first oversample the minority class to have 10 percent the number of examples of the majority class
-        smote = SMOTE(sampling_strategy=1.0) # new examples can be synthesized from the existing examples
+        smote = SMOTE(sampling_strategy=1.0) # new examples can be synthesized from the existing examples | only working in fit not in predict
         # can combine SMOTE with random undersampling of the majority class
         # e.g. use random undersampling to reduce the number of examples in the majority class to have 50 percent more
         # than the minority class

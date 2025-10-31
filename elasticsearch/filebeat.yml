@@ -1,0 +1,55 @@
+# name: "fastapi-app-filebeat"
+# logging.metrics.enabled: false
+# xpack.security.enabled: false
+# xpack.monitoring.enabled: false
+# setup.ilm.enabled: false
+# setup.template.enabled: false
+
+filebeat.inputs:
+# - type: tcp
+#   scan_frequency: 5s
+#   max_message_size: 10MiB
+#   host: "0.0.0.0:5000"
+#   fields:
+#     source: "tcp"
+#     service: "api"
+#   fields_under_root: true
+- type: log
+  scan_frequency: 1s
+  enabled: true
+  paths:
+    - /app/logs/*.log
+  fields:
+    service: api
+  fields_under_root: true
+  json.keys_under_root: true
+  json.overwrite_keys: true
+  json.add_error_key: true
+  json.expand_keys: true
+
+filebeat.autodiscover:
+ providers:
+   - type: docker
+     hints.enabled: true
+
+
+processors:
+- add_docker_metadata: ~
+
+
+setup.kibana:
+ host: ${KIBANA_HOSTS}
+ username: ${ELASTIC_USER}
+ password: ${ELASTIC_PASSWORD}
+
+output.logstash:
+  hosts: ${LOGSTASH_HOSTS}
+  # ssl.enabled: true
+  # ssl.certificate_authorities: "certs_fb/ca/ca.crt"
+
+# output.elasticsearch:
+#  hosts: ${ELASTIC_HOSTS}
+#  username: ${ELASTIC_USER}
+#  password: ${ELASTIC_PASSWORD}
+#  ssl.enabled: true
+#  ssl.certificate_authorities: "certs/ca/ca.crt"

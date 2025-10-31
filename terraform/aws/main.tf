@@ -155,6 +155,7 @@ resource "aws_instance" "ec2_instance" {
                 #!/bin/bash
                 sudo yum update -y
                 sudo amazon-linux-extras install docker -y
+                sudo yum install dovker-compose-plugin -y
                 sudo service docker start
                 sudo systemctl enable docker
                 sudo yum install git -y

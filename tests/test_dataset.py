@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from unittest.mock import patch, mock_open
-from steps.ingest import Ingestion
+from training.steps.ingest import Ingestion
 
 # Sample configuration data
 @pytest.fixture

@@ -1,0 +1,100 @@
+name: MLOps pipeline
+
+on:
+    push:
+        branches: [main]
+    schedule:
+        - cron: "0 3 * * *" # Run drift check daily at 03:00 UTC
+
+env:
+    AWS_REGION: ap-southeast-2
+    EC2_USER: ${{secrets.EC2_USER}}
+    EC2_HOST: ${{secrets.EC2_HOST}}
+    EC2_KEY: ${{secrets.EC2_KEY}}
+    DAGSHUB_MLFLOW_URI: ${{secrets.DAGSHUB_MLFLOW_URI}}
+    DAGSHUB_TOKEN: ${{secrets.DAGSHUB_TOKEN}}
+    PYTHON_PATH: src
+    AWS_ACCESS_KEY_ID: ${{secrets.AWS_ACCESS_KEY_ID}}
+    AWS_SECRET_ACCESS_KEY: ${{secrets.AWS_SECRET_ACCESS_KEY}}
+    BUCKET_NAME: ${{secrets.BUCKET_NAME}}
+
+
+jobs:
+    monitor:
+        name: Monitor data drift
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: action/checkout@v4
+
+            - name: Set up python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.10"
+
+            - name: Install dependencies
+              run: |
+                pip install -r src/requirements.txt
+            
+            - name: Run evidently drift check
+              run: |
+                python -m monitoring.monitor
+
+    # retrain:
+    #     name: Retrain model if drift detected
+    #     needs: monitor
+    #     if: ${{needs.monitor.result == 'success'}}
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - name: Checkout code
+    #           uses: actions/checkout@v4
+
+    #         - name: Setup python
+    #           uses: action/setup-python@v5
+    #           with:
+    #             python-version: "3.10"
+
+    #         - name: Setup dvc
+    #           uses: action/setup-dvc@v1
+
+    #         - name: Install dependencies
+    #           run: |
+    #             pip install -r src/requirements.txt
+
+    #         - name: Pull data with DVC from S3
+    #           run: |
+    #             dvc pull -r awsdata -v
+
+    #         - name: Retrain model
+    #           run: |
+    #             python -m training.main
+
+    # deploy:
+    #     name: Deploy latest model to EC2
+    #     needs: retrain
+    #     runs-on: ubuntu-latest
+    #     steps:
+    #         - name: Checkout codde
+    #           uses: action/checkout@v4
+
+    #         - name: Copy files via SSH
+    #           uses: appleboy/scp-action@v1
+    #           with:
+    #             host: ${{ secrets.EC2_HOST }}
+    #             username: ${{ secrets.EC2_USER }}
+    #             key: ${{ secrets.EC2_KEY }}
+    #             source: ".env"
+    #             target: /home/${{ secrets.EC2_USER }}/learn_mlopz
+
+    #         - name: Deploy Code
+    #           shell: bash
+    #           run: |
+    #             # SSH into the EC2 instance and deploy
+    #             ssh -o StrictHostKeyChecking=no -i ~/ec2_key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+    #                 cd /home/${{ secrets.EC2_USER }}/learn_mlopz/ &&
+    #                 sudo docker ps --filter "publish=80" --format "{{.ID}}" | while read -r id; do   sudo docker stop "$id";   sudo docker rm "$id"; done &&
+    #                 sudo docker build -t mlopz . &&
+    #                 sudo docker run --name ml-api -dp 80:80 --env-file .env mlopz
+    #             '
+
+

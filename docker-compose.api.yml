@@ -1,0 +1,59 @@
+networks:
+  default:
+    name: elastic
+    driver: bridge
+    external: true
+
+volumes:
+  filebeatdata01:
+    driver: local
+  # certs_fb:
+  #   driver: local 
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: docker/api.Dockerfile
+    env_file:
+      - ./.env
+    environment:
+      - PYTHONPATH=/app
+      - LOG_PATH=/logs/ml-logger.log
+      - FILEBEAT_URI=127.0.0.1
+      - RUN_IN_DOCKER=true
+    ports:
+      - "80:80"
+    volumes:
+      - ./logs:/logs
+    mem_limit: ${API_MEM_LIMIT}
+    #healthcheck:
+    #  test:
+    #    [
+    #      "CMD-SHELL",
+    #      "curl -f http://localhost:80/health || exit 1",
+    #    ]
+    #  interval: 30s
+    #  timeout: 10s
+    #  retries: 3
+
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${STACK_VERSION}
+    entrypoint: >
+       bash -c "exec filebeat -e --strict.perms=false"
+    user: root
+    volumes:
+      - ./certs:/usr/share/filebeat/certs
+      - filebeatdata01:/usr/share/filebeat/data
+      - "./filebeat_ingest_data/:/usr/share/filebeat/ingest_data/"
+      - "./elasticsearch/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro"
+      - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - ./logs:/app/logs
+    environment:
+      - ELASTIC_USER=elastic
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_HOSTS=https://es01:9200
+      - KIBANA_HOSTS=http://kibana:5601
+      - LOGSTASH_HOSTS=logstash:5400
+    mem_limit: ${FB_MEM_LIMIT}

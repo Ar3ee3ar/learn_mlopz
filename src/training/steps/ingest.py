@@ -4,11 +4,14 @@ import pandas as pd
 import yaml
 
 class Ingestion:
-    def __init__(self):
+    def __init__(self, train_path=None, test_path=None):
         self.config = self.load_config()
+        if train_path is not None:
+            self.config['data']['train_path'] = train_path
+            self.config['data']['test_path'] = test_path
 
     def load_config(self):
-        with open("config.yml", "r") as file:
+        with open("configs/config.yml", "r") as file:
             return yaml.safe_load(file)
 
     def load_data(self):

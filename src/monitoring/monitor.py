@@ -1,21 +1,33 @@
 # If this .py file doesn't work, then use a notebook to run it.
 import joblib
 import pandas as pd
-from steps.clean import Cleaner
-from evidently import Report, Dataset
+import sys
+from evidently import Report, Dataset, MulticlassClassification
 from evidently.presets import DataDriftPreset, DataSummaryPreset
 from evidently import DataDefinition
 from evidently.sdk.models import PanelMetric
 from evidently.sdk.panels import DashboardPanelPlot
 from evidently.ui.workspace import CloudWorkspace
-
+# from evidently.pipeline.column_mapping import ColumnMapping
+# use in case run from monitor.py directly
+# from pathlib import Path
+# project_root = Path(__file__).resolve().parents[1]
+# sys.path.append(str(project_root))
+from training.steps.clean import Cleaner
+from monitoring.es_read import get_elastic
+from shared.config_loader import load_environment
+from app.model_loader import load_model_from_registered
 import warnings
 import mlflow
 import os
 import numpy as np
-from dotenv import load_dotenv
+from pathlib import Path
+# from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
+load_environment()
+current_file_path = Path(__file__)
+parent_directory = current_file_path.parents[2]
 
 warnings.filterwarnings("ignore")
 
@@ -26,13 +38,19 @@ warnings.filterwarnings("ignore")
 # model = mlflow.pyfunc.load_model(logged_model)
 
 # # OR import from models/
-model = joblib.load('models/model.pkl')
+#model = joblib.load('models/model.pkl')
+model, model_version = load_model_from_registered()
+
+#print(f"abs path of ref: {pd.read_csv(os.path.join(parent_directory,'data/train.csv'))}")
 
 
 # Loading data
-reference = pd.read_csv("data/train.csv")
-current = pd.read_csv("data/test.csv")
-production = pd.read_csv("data/production.csv")
+reference = pd.read_csv(os.path.join(parent_directory,"data/train.csv"))
+current = pd.read_csv(os.path.join(parent_directory,"data/test.csv"))
+production = pd.read_csv(os.path.join(parent_directory,"data/production.csv"))
+# production = get_elastic()
+
+# print(production)
 
 
 # Clean data
@@ -60,7 +78,12 @@ target = 'Result'
 prediction = 'prediction'
 numerical_features = ['Age', 'AnnualPremium', 'HasDrivingLicense', 'RegionID', 'Switch']
 categorical_features = ['Gender','PastAccident', 'prediction', 'Result']
-column_mapping = DataDefinition()
+column_mapping = DataDefinition(
+    classification=[MulticlassClassification(
+        target=target,
+        prediction_labels=prediction,
+        labels={"0": "Customer is not interested", "1":"Customer is interested"}
+    )])
 
 # column_mapping.target = target
 # column_mapping.prediction = prediction
@@ -83,11 +106,12 @@ data_drift_report = Report([
     DataDriftPreset(),
     DataSummaryPreset(),
     # TargetDriftPreset()
-])
+],include_tests=True)
 my_eval = data_drift_report.run(reference_data=reference_df, current_data=current_df)
 # data_drift_report
 # data_drift_report.json()
 my_eval.save_html("test_drift_own.html")
+my_eval.save_json("drift.json")
 
 
 # add dashboard
@@ -130,3 +154,4 @@ project = ws.get_project(os.getenv("MONITOR_PROJECT_ID"))
 #             tab="Data Drift",
 #         )
 ws.add_run(os.getenv("MONITOR_PROJECT_ID"), my_eval, include_data=False)
+print('Evidently report generated')

@@ -55,3 +55,9 @@ docker container stats
 docker compose build
 :start up compose
 docker compose up
+:stop container and remove network (still have volume)
+docker compose down (-v if also need to remove volume)
+:if container exist and want to start
+docker compose start
+:stop container and leaves environment intact
+docker compose stop

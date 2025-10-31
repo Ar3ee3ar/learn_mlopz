@@ -1,0 +1,70 @@
+Elasticsearch component
+1. Cluster: กลุ่มของ Node ที่มี network เชื่อมถึงกันได้ โดย node แต่ละอันที่อยู่ใน cluster เดียวกันจะสามารถสื่อสารและส่งผ่านข้อมูลถึงกันได้
+2. Node: เครื่องที่ลง Elasticsearch ไว้ จะใช้ resource ในการเก็บและ seach หาข้อมูลที่เก็บอยู่
+3. Index: configuration {เก็บกี่ shard, replica เท่าไหร่, mapping type (aka. schema, table, collection)(แต่ละ record มีรูปแบบอย่างไร, มี field อะไรบ้าง, type อะไร) สามารถกำหนดเองได้ (schema) หรือ elasticsearch กำหนดให้ (schema-less)}
+4. Shard: เป็นที่เก็บข้อมูล อยู่ในรูปแบบ Json Document สามารถแบ่งได้ 2 รูปแบบ
+   4.1 Primary shard: เป็นที่เก็บข้อมูลจริงที่จะถูกใช้เป็นหลัก โดย shard ที่สร้างนี้จะเป็นตัวกำหนดว่า index ที่สร้างสามารถ scale ได้กี่เครื่อง (eg. 5 primary shard -> กระจายได้ 5 node)
+        !!! ยิ่งสร้าง shard มาก ยิ่งกิน resource เครื่องตอน search มากขึ้น (ถ้าเกิดสร้างผิดจำนวน elasticsearch มี feature reindex(สร้าง index ใหม่แล้วโอนย้ายข้อมูลจาก index เก่าไปได้))
+   4.2 Replica shard: เป็น shard ที่ copy ข้อมูลสำรองของ Primary shard จาก node อื่นไว้ กรณีที่ primary ล่ม replica จะทำหน้าที่ต่อ
+
+check elastic status
+
+
+test api in postman
+1. copy ca cert from docker
+docker cp <container-name-elastic>:path/to/ca.crt path/to/paste/ca.crt
+2. settings -> certificates -> add ca cert
+3. basic auth username & password
+
+- search logs from filebeat [GET]
+https://localhost:9200/.ds-filebeat-8.7.1-2025.10.07-000001/_search?pretty
+Body:
+{
+  "size": 100,
+  "query":{
+    "match": {
+        "message": "- ml-logger"
+    }
+  }
+}
+
+- insert data to index [POST]
+POST http://localhost:9200/books/_doc
+
+BODY:
+{
+  "title": "The Great Gatsby",
+  "author": "F. Scott Fitzgerald",
+  "genre": "Fiction",
+  "published_date": "1925-04-10"
+}
+
+- count data in index [GET]
+http://localhost:9200/books/_count
+
+- search all data
+POST http://localhost:9200/books/_search?pretty
+
+BODY:
+{
+  "size": 100,
+  "query": {
+    "match_all": {}
+  }
+}
+
+- search multiple field
+POST http://localhost:9200/books/_search?pretty
+
+BODY:
+{
+  "query": {
+    "multi_match": {
+      "query": "gatsby",
+      "fields": ["title", "author", "category"]
+    }
+  }
+}
+
+- view all index in elastic
+https://loclhost:9200/_cat/indices/filebeat-*

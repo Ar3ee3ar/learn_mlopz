@@ -24,7 +24,7 @@ ENV PYTHONUNBUFFERED=1
 # COPY models/ ./models/
 
 # Copy requirements
-COPY requirements.txt .
+COPY src/requirements.txt .
 # 
 # RUN pip install --upgrade pip setuptools wheel && \
 # install python lib
@@ -54,12 +54,14 @@ COPY --from=builder /usr/local/lib/python3.10/site-packages/ /usr/local/lib/pyth
 COPY --from=builder /usr/local/bin /usr/local/bin
 
 # copy project to the container
-COPY --chown=appuser app.py .
+COPY --chown=appuser src/ /app/
+COPY --chown=appuser logs/ /app/
+COPY --chown=appuser configs/ /app/
 
 # switch to non-root user
 USER appuser
 
 EXPOSE 80
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
 
