@@ -44,9 +44,6 @@ jobs:
               run: |
                 pip install -r src/requirements.txt
 
-            - name: Setup dvc
-              uses: actions/setup-dvc@v1
-
             - name: Pull data with DVC from S3
               run: |
                 dvc pull -r awsdata -v
