@@ -39,7 +39,7 @@ jobs:
             
             - name: Run evidently drift check
               run: |
-                echo "PYTHON_PATH=${{env.PYTHON_PATH}}" >> $GITHUB_ENV
+                echo "PYTHONPATH=${{env.PYTHON_PATH}}" >> $GITHUB_ENV
                 python -m monitoring.monitor
 
     # retrain:
