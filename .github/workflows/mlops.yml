@@ -39,6 +39,7 @@ jobs:
             
             - name: Run evidently drift check
               run: |
+                echo "PYTHON_PATH=${{env.PYTHON_PATH}}" >> $GITHUB_ENV
                 python -m monitoring.monitor
 
     # retrain:
@@ -68,7 +69,7 @@ jobs:
 
     #         - name: Retrain model
     #           run: |
-    #             python -m training.main
+    #             python -m training.main --train_path data/train.csv --test_path data/test.csv
 
     # deploy:
     #     name: Deploy latest model to EC2
