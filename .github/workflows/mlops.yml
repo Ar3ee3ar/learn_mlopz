@@ -4,8 +4,8 @@ on:
     push:
         branches: 
             - main
-    schedule:
-        - cron: "0 3 * * *" # Run drift check daily at 03:00 UTC
+    # schedule:
+    #     - cron: "0 3 * * *" # Run drift check daily at 03:00 UTC
 
 env:
     AWS_DEFAULT_REGION: ap-southeast-2
